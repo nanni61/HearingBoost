@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_AUDIO = 101
-        private const val GAIN_MAX      = 300   // slider 0–300 → 0.0–3.0f
+        private const val GAIN_MAX      = 500   // slider 0–500 → 0.0–5.0f
         private const val GAIN_DEFAULT  = 100   // = 100% = 1.0f
     }
 

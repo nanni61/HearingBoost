@@ -37,7 +37,7 @@ class AudioProcessor {
         const val CHANNEL_IN       = AudioFormat.CHANNEL_IN_MONO
         const val CHANNEL_OUT      = AudioFormat.CHANNEL_OUT_STEREO
         const val ENCODING         = AudioFormat.ENCODING_PCM_FLOAT
-        const val BUFFER_FRAMES    = 512
+        const val BUFFER_FRAMES    = 256
         const val MAX_GAIN         = 5.0f   // 500 %
 
         // Voice-frequency band (Hz)
