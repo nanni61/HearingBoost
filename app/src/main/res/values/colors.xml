@@ -4,11 +4,14 @@
     <color name="accent_orange">#E8441A</color>
     <color name="accent_blue">#3D9BE9</color>
     <color name="accent_blue_r">#5BC4BF</color>
+    <color name="accent_teal">#26C6A6</color>
+    <color name="accent_yellow">#F5C518</color>
     <color name="start_green">#2E7D32</color>
     <color name="stop_red">#C62828</color>
     <color name="text_label">#AAAAAA</color>
     <color name="text_dim">#666666</color>
     <color name="text_secondary">#888888</color>
+    <color name="section_label">#555566</color>
     <color name="divider">#222226</color>
     <color name="chip_bg">#16161A</color>
     <color name="white">#FFFFFF</color>

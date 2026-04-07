@@ -17,99 +17,167 @@ class MainActivity : AppCompatActivity() {
     private val processor = AudioProcessor()
 
     companion object {
-        private const val REQUEST_AUDIO = 101
-        private const val GAIN_MAX      = 500   // slider 0–500 → 0.0–5.0f
-        private const val GAIN_DEFAULT  = 100   // = 100% = 1.0f
+        private const val REQUEST_AUDIO   = 101
+        private const val GAIN_MAX        = 500   // slider 0–500 → 0.0–5.0f
+        private const val GAIN_DEFAULT    = 100
+
+        private const val HP_MIN_HZ       = 20.0
+        private const val HP_MAX_HZ       = 2000.0
+
+        private const val LP_MIN_HZ       = 500.0
+        private const val LP_MAX_HZ       = 20000.0
+
+        private const val GATE_DB_DEFAULT = 40    // → -40 dB
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Keep screen on while amplifying
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        setupSliders()
-        setupToggle()
+        setupGainSliders()
+        setupVoiceEqToggle()
+        setupHpFilter()
+        setupLpFilter()
+        setupGate()
+        setupNoiseSlider()
+        setupToggleButton()
     }
 
-    // ── UI Setup ─────────────────────────────────────────────────────────────
+    // ── Gain L/R ──────────────────────────────────────────────────────────────
 
-    private fun setupSliders() {
-
-        // ── Gain Left ────────────────────────────────────────────────────────
+    private fun setupGainSliders() {
         binding.seekGainL.max      = GAIN_MAX
         binding.seekGainL.progress = GAIN_DEFAULT
-        updateGainLabel(binding.seekGainL.progress, isLeft = true)
-
-        binding.seekGainL.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
-                processor.gainLeft = p / 100f
-                updateGainLabel(p, isLeft = true)
-            }
-            override fun onStartTrackingTouch(sb: SeekBar) {}
-            override fun onStopTrackingTouch(sb: SeekBar) {}
-        })
-
-        // ── Gain Right ───────────────────────────────────────────────────────
         binding.seekGainR.max      = GAIN_MAX
         binding.seekGainR.progress = GAIN_DEFAULT
-        updateGainLabel(binding.seekGainR.progress, isLeft = false)
+        updateGainLabel(GAIN_DEFAULT, true)
+        updateGainLabel(GAIN_DEFAULT, false)
 
-        binding.seekGainR.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
-                processor.gainRight = p / 100f
-                updateGainLabel(p, isLeft = false)
-            }
-            override fun onStartTrackingTouch(sb: SeekBar) {}
-            override fun onStopTrackingTouch(sb: SeekBar) {}
-        })
+        binding.seekGainL.onProgress { p ->
+            processor.gainLeft = p / 100f
+            updateGainLabel(p, true)
+        }
+        binding.seekGainR.onProgress { p ->
+            processor.gainRight = p / 100f
+            updateGainLabel(p, false)
+        }
+    }
 
-        // ── Noise Reduction ──────────────────────────────────────────────────
+    private fun updateGainLabel(p: Int, isLeft: Boolean) {
+        if (isLeft) binding.tvGainLValue.text = "${p}%"
+        else        binding.tvGainRValue.text = "${p}%"
+    }
+
+    // ── Voice EQ toggle ───────────────────────────────────────────────────────
+
+    private fun setupVoiceEqToggle() {
+        binding.switchVoiceEq.isChecked = processor.voiceEqEnabled
+        binding.switchVoiceEq.setOnCheckedChangeListener { _, checked ->
+            processor.voiceEqEnabled = checked
+        }
+    }
+
+    // ── High-Pass filter ──────────────────────────────────────────────────────
+
+    private fun setupHpFilter() {
+        binding.switchHp.isChecked = processor.hpEnabled
+        binding.seekHp.max         = 100
+        binding.seekHp.progress    = freqToSlider(processor.hpFreqHz, HP_MIN_HZ, HP_MAX_HZ)
+        updateHpLabel(binding.seekHp.progress)
+
+        binding.switchHp.setOnCheckedChangeListener { _, checked ->
+            processor.hpEnabled      = checked
+            binding.seekHp.isEnabled = checked
+        }
+        binding.seekHp.isEnabled = processor.hpEnabled
+        binding.seekHp.onProgress { p ->
+            processor.hpFreqHz = sliderToFreq(p, HP_MIN_HZ, HP_MAX_HZ)
+            updateHpLabel(p)
+        }
+    }
+
+    private fun updateHpLabel(p: Int) {
+        binding.tvHpValue.text = formatHz(sliderToFreq(p, HP_MIN_HZ, HP_MAX_HZ))
+    }
+
+    // ── Low-Pass filter ───────────────────────────────────────────────────────
+
+    private fun setupLpFilter() {
+        binding.switchLp.isChecked = processor.lpEnabled
+        binding.seekLp.max         = 100
+        binding.seekLp.progress    = freqToSlider(processor.lpFreqHz, LP_MIN_HZ, LP_MAX_HZ)
+        updateLpLabel(binding.seekLp.progress)
+
+        binding.switchLp.setOnCheckedChangeListener { _, checked ->
+            processor.lpEnabled      = checked
+            binding.seekLp.isEnabled = checked
+        }
+        binding.seekLp.isEnabled = processor.lpEnabled
+        binding.seekLp.onProgress { p ->
+            processor.lpFreqHz = sliderToFreq(p, LP_MIN_HZ, LP_MAX_HZ)
+            updateLpLabel(p)
+        }
+    }
+
+    private fun updateLpLabel(p: Int) {
+        binding.tvLpValue.text = formatHz(sliderToFreq(p, LP_MIN_HZ, LP_MAX_HZ))
+    }
+
+    // ── dB Gate ───────────────────────────────────────────────────────────────
+
+    private fun setupGate() {
+        binding.switchGate.isChecked = processor.gateEnabled
+        binding.seekGate.max         = 80
+        binding.seekGate.progress    = GATE_DB_DEFAULT
+        updateGateLabel(GATE_DB_DEFAULT)
+
+        binding.switchGate.setOnCheckedChangeListener { _, checked ->
+            processor.gateEnabled      = checked
+            binding.seekGate.isEnabled = checked
+        }
+        binding.seekGate.isEnabled = processor.gateEnabled
+        binding.seekGate.onProgress { p ->
+            processor.gateThresholdDb = -p.toFloat()
+            updateGateLabel(p)
+        }
+    }
+
+    private fun updateGateLabel(p: Int) {
+        binding.tvGateValue.text = "-${p} dB"
+    }
+
+    // ── Noise reduction ───────────────────────────────────────────────────────
+
+    private fun setupNoiseSlider() {
         binding.seekNoise.max      = 100
         binding.seekNoise.progress = 50
         updateNoiseLabel(50)
 
-        binding.seekNoise.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) {
-                processor.noiseLevel = p / 100f
-                updateNoiseLabel(p)
-            }
-            override fun onStartTrackingTouch(sb: SeekBar) {}
-            override fun onStopTrackingTouch(sb: SeekBar) {}
-        })
-    }
-
-    private fun setupToggle() {
-        binding.btnToggle.setOnClickListener {
-            if (processor.isRunning) {
-                stopProcessing()
-            } else {
-                requestAudioAndStart()
-            }
+        binding.seekNoise.onProgress { p ->
+            processor.noiseLevel = p / 100f
+            updateNoiseLabel(p)
         }
     }
 
-    // ── Label helpers ─────────────────────────────────────────────────────────
-
-    private fun updateGainLabel(progress: Int, isLeft: Boolean) {
-        val label = "${progress}%"
-        if (isLeft) binding.tvGainLValue.text = label
-        else        binding.tvGainRValue.text = label
-    }
-
-    private fun updateNoiseLabel(progress: Int) {
+    private fun updateNoiseLabel(p: Int) {
         val text = when {
-            progress == 0        -> "Off"
-            progress < 34        -> "Leggera"
-            progress < 67        -> "Media"
-            else                 -> "Alta"
+            p == 0 -> "Off"
+            p < 34 -> "Leggera"
+            p < 67 -> "Media"
+            else   -> "Alta"
         }
-        binding.tvNoiseValue.text = "$text ($progress%)"
+        binding.tvNoiseValue.text = "$text ($p%)"
     }
 
-    // ── Audio control ─────────────────────────────────────────────────────────
+    // ── Start/Stop ────────────────────────────────────────────────────────────
+
+    private fun setupToggleButton() {
+        binding.btnToggle.setOnClickListener {
+            if (processor.isRunning) stopProcessing() else requestAudioAndStart()
+        }
+    }
 
     private fun requestAudioAndStart() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -125,9 +193,7 @@ class MainActivity : AppCompatActivity() {
     private fun startProcessing() {
         processor.start()
         binding.btnToggle.text = "⏹ Stop"
-        binding.btnToggle.setBackgroundColor(
-            ContextCompat.getColor(this, R.color.stop_red)
-        )
+        binding.btnToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.stop_red))
         binding.statusDot.setImageResource(R.drawable.dot_active)
         binding.tvStatus.text = "In ascolto…"
     }
@@ -135,9 +201,7 @@ class MainActivity : AppCompatActivity() {
     private fun stopProcessing() {
         processor.stop()
         binding.btnToggle.text = "▶ Avvia"
-        binding.btnToggle.setBackgroundColor(
-            ContextCompat.getColor(this, R.color.start_green)
-        )
+        binding.btnToggle.setBackgroundColor(ContextCompat.getColor(this, R.color.start_green))
         binding.statusDot.setImageResource(R.drawable.dot_idle)
         binding.tvStatus.text = "In pausa"
     }
@@ -150,13 +214,38 @@ class MainActivity : AppCompatActivity() {
             grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
             startProcessing()
         } else {
-            Toast.makeText(this,
-                "Permesso microfono necessario", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Permesso microfono necessario", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         processor.stop()
+    }
+
+    // ── Utility ───────────────────────────────────────────────────────────────
+
+    private fun sliderToFreq(p: Int, minHz: Double, maxHz: Double): Double {
+        val t = p / 100.0
+        return minHz * Math.pow(maxHz / minHz, t)
+    }
+
+    private fun freqToSlider(hz: Double, minHz: Double, maxHz: Double): Int {
+        val t = Math.log(hz / minHz) / Math.log(maxHz / minHz)
+        return (t * 100).toInt().coerceIn(0, 100)
+    }
+
+    private fun formatHz(hz: Double) = if (hz >= 1000) {
+        String.format("%.1f kHz", hz / 1000.0)
+    } else {
+        String.format("%.0f Hz", hz)
+    }
+
+    private fun SeekBar.onProgress(block: (Int) -> Unit) {
+        setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar, p: Int, fromUser: Boolean) = block(p)
+            override fun onStartTrackingTouch(sb: SeekBar) {}
+            override fun onStopTrackingTouch(sb: SeekBar) {}
+        })
     }
 }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_dark"
@@ -10,25 +9,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
-        <!-- ── Header ── -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingBottom="32dp"
-            android:paddingTop="16dp">
+            android:paddingBottom="20dp"
+            android:paddingTop="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HearingBoost"
                 android:textColor="@color/accent_orange"
-                android:textSize="28sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.05"
                 android:fontFamily="monospace" />
 
             <TextView
@@ -36,22 +34,22 @@
                 android:layout_height="wrap_content"
                 android:text="Amplificatore vocale adattivo"
                 android:textColor="@color/text_dim"
-                android:textSize="13sp"
-                android:paddingTop="4dp" />
+                android:textSize="12sp"
+                android:paddingTop="2dp" />
         </LinearLayout>
 
-        <!-- ── Status row ── -->
+        <!-- Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingBottom="32dp">
+            android:paddingBottom="20dp">
 
             <ImageView
                 android:id="@+id/statusDot"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
                 android:src="@drawable/dot_idle"
                 android:layout_marginEnd="8dp" />
 
@@ -61,25 +59,37 @@
                 android:layout_height="wrap_content"
                 android:text="In pausa"
                 android:textColor="@color/text_dim"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- ── GAIN LEFT ── -->
+        <!-- ═══════════════════════════════════ -->
+        <!-- AMPLIFICAZIONE -->
+        <!-- ═══════════════════════════════════ -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AMPLIFICAZIONE SINISTRA"
+            android:text="AMPLIFICAZIONE"
+            android:textColor="@color/section_label"
+            android:textSize="10sp"
+            android:letterSpacing="0.15"
+            android:paddingBottom="8dp" />
+
+        <!-- Gain Left -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sinistra"
             android:textColor="@color/text_label"
             android:textSize="11sp"
-            android:letterSpacing="0.12"
-            android:paddingBottom="6dp" />
+            android:paddingBottom="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingBottom="8dp">
+            android:paddingBottom="4dp">
 
             <SeekBar
                 android:id="@+id/seekGainL"
@@ -95,35 +105,27 @@
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:textColor="@color/accent_blue"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:fontFamily="monospace" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="0%  ·  100%  ·  200%  ·  300%  ·  400%  ·  500%"
-            android:textColor="@color/text_dim"
-            android:textSize="10sp"
-            android:paddingBottom="24dp" />
-
-        <!-- ── GAIN RIGHT ── -->
+        <!-- Gain Right -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AMPLIFICAZIONE DESTRA"
+            android:text="Destra"
             android:textColor="@color/text_label"
             android:textSize="11sp"
-            android:letterSpacing="0.12"
-            android:paddingBottom="6dp" />
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingBottom="8dp">
+            android:paddingBottom="4dp">
 
             <SeekBar
                 android:id="@+id/seekGainR"
@@ -139,7 +141,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:textColor="@color/accent_blue_r"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:fontFamily="monospace" />
         </LinearLayout>
@@ -147,112 +149,360 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="0%  ·  100%  ·  200%  ·  300%"
+            android:text="0% · 100% · 200% · 300% · 400% · 500%"
             android:textColor="@color/text_dim"
+            android:textSize="9sp"
+            android:paddingBottom="16dp" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/divider" android:layout_marginBottom="16dp" />
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- FILTRI -->
+        <!-- ═══════════════════════════════════ -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FILTRI"
+            android:textColor="@color/section_label"
             android:textSize="10sp"
-            android:paddingBottom="24dp" />
+            android:letterSpacing="0.15"
+            android:paddingBottom="12dp" />
 
-        <!-- ── Divider ── -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider"
-            android:layout_marginBottom="24dp" />
-
-        <!-- ── NOISE REDUCTION ── -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="RIDUZIONE RUMORE"
-            android:textColor="@color/text_label"
-            android:textSize="11sp"
-            android:letterSpacing="0.12"
-            android:paddingBottom="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Filtra rumori di fondo, mantiene la voce umana (300–3400 Hz)"
-            android:textColor="@color/text_dim"
-            android:textSize="11sp"
-            android:paddingBottom="8dp" />
-
+        <!-- EQ Vocale -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingBottom="8dp">
+            android:background="@drawable/chip_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp">
 
-            <SeekBar
-                android:id="@+id/seekNoise"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:progressTint="@color/accent_orange"
-                android:thumbTint="@color/accent_orange" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvNoiseValue"
-                android:layout_width="96dp"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EQ Vocale"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Passa-banda 300 Hz – 3.4 kHz"
+                    android:textColor="@color/text_dim"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchVoiceEq"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="end"
-                android:textColor="@color/accent_orange"
-                android:textSize="13sp"
-                android:fontFamily="monospace" />
+                android:checked="true" />
         </LinearLayout>
 
-        <!-- ── Info chip: voice band ── -->
+        <!-- High-Pass -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:background="@drawable/chip_bg"
             android:padding="12dp"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp">
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Filtro Passa-Alto (HP)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Taglia frequenze sotto la soglia"
+                        android:textColor="@color/text_dim"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchHp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/seekHp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progressTint="@color/accent_orange"
+                    android:thumbTint="@color/accent_orange" />
+
+                <TextView
+                    android:id="@+id/tvHpValue"
+                    android:layout_width="64dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textColor="@color/accent_orange"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Low-Pass -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/chip_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Filtro Passa-Basso (LP)"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Taglia frequenze sopra la soglia"
+                        android:textColor="@color/text_dim"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchLp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/seekLp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progressTint="@color/accent_teal"
+                    android:thumbTint="@color/accent_teal" />
+
+                <TextView
+                    android:id="@+id/tvLpValue"
+                    android:layout_width="64dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textColor="@color/accent_teal"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/divider" android:layout_marginBottom="16dp" />
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- GATE E RUMORE -->
+        <!-- ═══════════════════════════════════ -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GATE E RUMORE"
+            android:textColor="@color/section_label"
+            android:textSize="10sp"
+            android:letterSpacing="0.15"
+            android:paddingBottom="12dp" />
+
+        <!-- dB Gate -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/chip_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gate dB"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Silenzia segnali sotto la soglia"
+                        android:textColor="@color/text_dim"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchGate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/seekGate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progressTint="@color/accent_yellow"
+                    android:thumbTint="@color/accent_yellow" />
+
+                <TextView
+                    android:id="@+id/tvGateValue"
+                    android:layout_width="64dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textColor="@color/accent_yellow"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Noise Reduction -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/chip_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎙️"
-                android:textSize="18sp"
-                android:layout_marginEnd="10dp" />
+                android:text="Riduzione Rumore"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingBottom="2dp" />
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gate adattivo su RMS"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp"
+                android:paddingBottom="8dp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Banda vocale attiva: 300 Hz – 3.4 kHz\nEqualizzazione passa-banda per voce umana"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:lineSpacingExtra="2dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/seekNoise"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progressTint="@color/accent_orange"
+                    android:thumbTint="@color/accent_orange" />
+
+                <TextView
+                    android:id="@+id/tvNoiseValue"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textColor="@color/accent_orange"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- ── Divider ── -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider"
-            android:layout_marginBottom="32dp" />
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/divider" android:layout_marginBottom="20dp" />
 
-        <!-- ── Start/Stop button ── -->
+        <!-- Start/Stop -->
         <Button
             android:id="@+id/btnToggle"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="60dp"
             android:text="▶ Avvia"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:textColor="@color/white"
             android:backgroundTint="@color/start_green"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="12dp" />
 
-        <!-- ── Warning ── -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⚠ Valori oltre 100% possono causare distorsione o fastidio. Inizia sempre dal livello più basso."
+            android:text="⚠ Valori oltre 100% possono causare distorsione. Inizia dal livello più basso."
             android:textColor="@color/text_dim"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:gravity="center"
             android:paddingBottom="16dp" />
 
