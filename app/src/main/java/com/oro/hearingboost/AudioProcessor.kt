@@ -38,7 +38,7 @@ class AudioProcessor {
         const val CHANNEL_OUT      = AudioFormat.CHANNEL_OUT_STEREO
         const val ENCODING         = AudioFormat.ENCODING_PCM_FLOAT
         const val BUFFER_FRAMES    = 512
-        const val MAX_GAIN         = 3.0f   // 300 %
+        const val MAX_GAIN         = 5.0f   // 500 %
 
         // Voice-frequency band (Hz)
         const val VOICE_LOW_HZ     = 300.0
@@ -179,7 +179,7 @@ class AudioProcessor {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private fun clip(v: Float) = v.coerceIn(-1f, 1f)
+private fun clip(v: Float): Float = Math.tanh(v.toDouble()).toFloat()
 
     // ── Biquad IIR filter ─────────────────────────────────────────────────────
 
