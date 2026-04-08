@@ -4,6 +4,8 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
+import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,11 +15,30 @@ import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+/**
+ * HearingBoost Audio Processor v3
+ *
+ * Pipeline:
+ *  AudioRecord (mono)
+ *    → [AEC hardware]      — soppressore eco acustico
+ *    → [AGC hardware]      — controllo guadagno automatico
+ *    → [NoiseSuppressor]   — soppressore rumore hardware
+ *    → [HP filter]         — passa-alto (software, on/off)
+ *    → [LP filter]         — passa-basso (software, on/off)
+ *    → [Voice EQ]          — banda-pass 300–3400 Hz (on/off)
+ *    → [Pre-enfasi]        — boost consonanti 2–4 kHz (on/off, intensità)
+ *    → [Compressore]       — livella dinamica vocale (on/off, soglia/ratio)
+ *    → [Noise gate soft]   — gate adattivo RMS
+ *    → [dB Gate]           — gate fisso in dB (on/off)
+ *    → [Gain L/R]          — amplificazione 0–500%
+ *    → AudioTrack stereo
+ */
 class AudioProcessor {
 
     companion object {
@@ -26,7 +47,7 @@ class AudioProcessor {
         const val CHANNEL_OUT   = AudioFormat.CHANNEL_OUT_STEREO
         const val ENCODING      = AudioFormat.ENCODING_PCM_FLOAT
         const val BUFFER_FRAMES = 256
-        const val MAX_GAIN      = 5.0f   // 500%
+        const val MAX_GAIN      = 5.0f
 
         const val VOICE_LOW_HZ  = 300.0
         const val VOICE_HIGH_HZ = 3400.0
@@ -35,6 +56,10 @@ class AudioProcessor {
     // ── Gain ──────────────────────────────────────────────────────────────────
     @Volatile var gainLeft  = 1.0f
     @Volatile var gainRight = 1.0f
+
+    // ── Hardware effects (attivati sul session ID di AudioRecord) ─────────────
+    @Volatile var aecEnabled = true
+    @Volatile var agcEnabled = true
 
     // ── Voice EQ ──────────────────────────────────────────────────────────────
     @Volatile var voiceEqEnabled = true
@@ -47,17 +72,28 @@ class AudioProcessor {
     @Volatile var lpEnabled = false
     @Volatile var lpFreqHz  = 8000.0
 
+    // ── Pre-enfasi (boost consonanti 2–4 kHz) ────────────────────────────────
+    @Volatile var preEmphasisEnabled   = true
+    @Volatile var preEmphasisStrength  = 0.5f   // 0.0–1.0
+
+    // ── Compressore dinamico ──────────────────────────────────────────────────
+    @Volatile var compressorEnabled    = true
+    @Volatile var compressorThreshold  = 0.3f   // ampiezza lineare 0.0–1.0
+    @Volatile var compressorRatio      = 4.0f   // es. 4:1
+
+    // ── Noise reduction ───────────────────────────────────────────────────────
+    @Volatile var noiseLevel = 0.3f
+
     // ── dB Gate ───────────────────────────────────────────────────────────────
     @Volatile var gateEnabled     = false
     @Volatile var gateThresholdDb = -40.0f
 
-    // ── Noise reduction ───────────────────────────────────────────────────────
-    @Volatile var noiseLevel = 0.5f
-
     // ── Internal ──────────────────────────────────────────────────────────────
-    private var record   : AudioRecord? = null
-    private var track    : AudioTrack?  = null
-    private var noiseSup : NoiseSuppressor? = null
+    private var record   : AudioRecord?           = null
+    private var track    : AudioTrack?            = null
+    private var aec      : AcousticEchoCanceler?  = null
+    private var agc      : AutomaticGainControl?  = null
+    private var noiseSup : NoiseSuppressor?       = null
     private var job      : Job? = null
     private val scope    = CoroutineScope(Dispatchers.Default)
 
@@ -66,17 +102,29 @@ class AudioProcessor {
     private val hpFilt = BiquadFilter()
     private val lpFilt = BiquadFilter()
 
+    // Pre-enfasi: shelving filter centrato a 2.5 kHz
+    private val preEmphFilt = BiquadFilter()
+
     @Volatile private var cachedHpFreq = -1.0
     @Volatile private var cachedLpFreq = -1.0
+
+    // Compressore: envelope follower
+    private var envFollower = 0.0f
+    private val attackCoeff  = exp(-1.0f / (SAMPLE_RATE * 0.005f))   // 5 ms
+    private val releaseCoeff = exp(-1.0f / (SAMPLE_RATE * 0.100f))   // 100 ms
 
     init {
         bpLow.setHighPass(VOICE_LOW_HZ,  SAMPLE_RATE.toDouble(), 0.707)
         bpHigh.setLowPass(VOICE_HIGH_HZ, SAMPLE_RATE.toDouble(), 0.707)
         hpFilt.setHighPass(hpFreqHz, SAMPLE_RATE.toDouble(), 0.707)
         lpFilt.setLowPass(lpFreqHz,  SAMPLE_RATE.toDouble(), 0.707)
+        // High-shelf a 2500 Hz per pre-enfasi consonanti
+        preEmphFilt.setHighShelf(2500.0, SAMPLE_RATE.toDouble(), 6.0, 0.707)
         cachedHpFreq = hpFreqHz
         cachedLpFreq = lpFreqHz
     }
+
+    // ── Public API ────────────────────────────────────────────────────────────
 
     fun start() {
         if (job?.isActive == true) return
@@ -85,16 +133,36 @@ class AudioProcessor {
         val bufSize = max(minBuf, BUFFER_FRAMES * 4)
 
         record = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.VOICE_COMMUNICATION,  // ottimizzato per voce + AEC
             SAMPLE_RATE, CHANNEL_IN, ENCODING, bufSize
         )
+
+        val sid = record!!.audioSessionId
+
+        // AEC
+        if (AcousticEchoCanceler.isAvailable()) {
+            aec = AcousticEchoCanceler.create(sid)
+            aec?.enabled = aecEnabled
+        }
+
+        // AGC
+        if (AutomaticGainControl.isAvailable()) {
+            agc = AutomaticGainControl.create(sid)
+            agc?.enabled = agcEnabled
+        }
+
+        // Noise suppressor hardware
+        if (NoiseSuppressor.isAvailable()) {
+            noiseSup = NoiseSuppressor.create(sid)
+            noiseSup?.enabled = true
+        }
 
         val trackBuf = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_OUT, ENCODING)
         track = AudioTrack.Builder()
             .setAudioAttributes(
                 android.media.AudioAttributes.Builder()
                     .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build()
             )
             .setAudioFormat(
@@ -108,10 +176,6 @@ class AudioProcessor {
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
 
-        if (NoiseSuppressor.isAvailable()) {
-            noiseSup = NoiseSuppressor.create(record!!.audioSessionId)
-        }
-
         record!!.startRecording()
         track!!.play()
 
@@ -124,31 +188,33 @@ class AudioProcessor {
                 val read = record!!.read(inBuf, 0, BUFFER_FRAMES, AudioRecord.READ_BLOCKING)
                 if (read <= 0) continue
 
+                // Aggiorna AEC/AGC se l'utente li ha cambiati
+                aec?.enabled = aecEnabled
+                agc?.enabled = agcEnabled
+
                 // Aggiorna coefficienti se la frequenza è cambiata
-                val curHp = hpFreqHz
-                val curLp = lpFreqHz
-                if (curHp != cachedHpFreq) {
-                    hpFilt.setHighPass(curHp, SAMPLE_RATE.toDouble(), 0.707)
-                    cachedHpFreq = curHp
+                if (hpFreqHz != cachedHpFreq) {
+                    hpFilt.setHighPass(hpFreqHz, SAMPLE_RATE.toDouble(), 0.707)
+                    cachedHpFreq = hpFreqHz
                 }
-                if (curLp != cachedLpFreq) {
-                    lpFilt.setLowPass(curLp, SAMPLE_RATE.toDouble(), 0.707)
-                    cachedLpFreq = curLp
+                if (lpFreqHz != cachedLpFreq) {
+                    lpFilt.setLowPass(lpFreqHz, SAMPLE_RATE.toDouble(), 0.707)
+                    cachedLpFreq = lpFreqHz
                 }
 
-                // 1. High-Pass
+                // ── 1. High-Pass ─────────────────────────────────────────
                 if (hpEnabled) {
                     for (i in 0 until read)
                         inBuf[i] = hpFilt.process(inBuf[i].toDouble()).toFloat()
                 }
 
-                // 2. Low-Pass
+                // ── 2. Low-Pass ──────────────────────────────────────────
                 if (lpEnabled) {
                     for (i in 0 until read)
                         inBuf[i] = lpFilt.process(inBuf[i].toDouble()).toFloat()
                 }
 
-                // 3. Voice EQ (band-pass 300–3400 Hz)
+                // ── 3. Voice EQ (band-pass 300–3400 Hz) ─────────────────
                 if (voiceEqEnabled) {
                     bpLow.reset()
                     bpHigh.reset()
@@ -159,13 +225,45 @@ class AudioProcessor {
                     }
                 }
 
-                // 4. RMS
+                // ── 4. Pre-enfasi (high-shelf 2.5 kHz) ───────────────────
+                if (preEmphasisEnabled && preEmphasisStrength > 0f) {
+                    // Riconfigura il guadagno del shelf in base alla strength
+                    val shelfDb = preEmphasisStrength * 12.0  // 0–12 dB
+                    preEmphFilt.setHighShelf(2500.0, SAMPLE_RATE.toDouble(), shelfDb, 0.707)
+                    for (i in 0 until read)
+                        inBuf[i] = preEmphFilt.process(inBuf[i].toDouble()).toFloat()
+                }
+
+                // ── 5. Compressore dinamico ───────────────────────────────
+                if (compressorEnabled) {
+                    val thresh = compressorThreshold
+                    val ratio  = compressorRatio
+                    for (i in 0 until read) {
+                        val level = abs(inBuf[i])
+                        // Envelope follower
+                        envFollower = if (level > envFollower)
+                            attackCoeff  * envFollower + (1f - attackCoeff)  * level
+                        else
+                            releaseCoeff * envFollower + (1f - releaseCoeff) * level
+
+                        // Gain reduction sopra la soglia
+                        val gain = if (envFollower > thresh) {
+                            val excess = envFollower - thresh
+                            val compressed = thresh + excess / ratio
+                            compressed / envFollower
+                        } else 1.0f
+
+                        inBuf[i] *= gain
+                    }
+                }
+
+                // ── 6. RMS per noise gate ─────────────────────────────────
                 var rms = 0.0f
                 for (i in 0 until read) rms += inBuf[i] * inBuf[i]
                 rms = sqrt(rms / read)
                 smoothRms = 0.95f * smoothRms + 0.05f * rms
 
-                // 5. Noise gate software
+                // ── 7. Noise gate software (adattivo) ─────────────────────
                 val noiseThresh = smoothRms * 0.15f * noiseLevel * 4f
                 val gateAlpha   = noiseLevel
                 for (i in 0 until read) {
@@ -173,7 +271,7 @@ class AudioProcessor {
                     inBuf[i]  = inBuf[i] * (1f - gateAlpha) + gated * gateAlpha
                 }
 
-                // 6. dB Gate
+                // ── 8. dB Gate ────────────────────────────────────────────
                 if (gateEnabled) {
                     val threshLinear = 10f.pow(gateThresholdDb / 20f)
                     for (i in 0 until read) {
@@ -181,7 +279,7 @@ class AudioProcessor {
                     }
                 }
 
-                // 7. Gain L/R + soft clip tanh
+                // ── 9. Gain L/R + soft clip tanh ─────────────────────────
                 val gl = gainLeft.coerceIn(0f, MAX_GAIN)
                 val gr = gainRight.coerceIn(0f, MAX_GAIN)
                 var j = 0
@@ -199,15 +297,26 @@ class AudioProcessor {
         job?.cancel(); job = null
         runCatching { record?.stop(); record?.release() }
         runCatching { track?.stop();  track?.release() }
+        runCatching { aec?.release() }
+        runCatching { agc?.release() }
         runCatching { noiseSup?.release() }
-        record = null; track = null; noiseSup = null
+        record = null; track = null
+        aec = null; agc = null; noiseSup = null
         bpLow.reset(); bpHigh.reset()
         hpFilt.reset(); lpFilt.reset()
+        preEmphFilt.reset()
+        envFollower = 0f
     }
 
     val isRunning get() = job?.isActive == true
 
+    // AEC/AGC availability (per mostrare/nascondere i toggle in UI)
+    val aecAvailable get() = AcousticEchoCanceler.isAvailable()
+    val agcAvailable get() = AutomaticGainControl.isAvailable()
+
     private fun softClip(v: Float) = Math.tanh(v.toDouble()).toFloat()
+
+    // ── Biquad IIR filter ─────────────────────────────────────────────────────
 
     class BiquadFilter {
         private var b0=1.0; private var b1=0.0; private var b2=0.0
@@ -237,6 +346,19 @@ class AudioProcessor {
             b2 = ((1.0 + cosw0) / 2.0) / a0
             a1 = (-2.0 * cosw0) / a0
             a2 = (1.0 - alpha) / a0
+        }
+
+        fun setHighShelf(freq: Double, sr: Double, gainDb: Double, q: Double) {
+            val A     = Math.pow(10.0, gainDb / 40.0)
+            val w0    = 2.0 * PI * freq / sr
+            val cosw0 = cos(w0)
+            val alpha = sin(w0) / (2.0 * q)
+            val a0    = (A+1) - (A-1)*cosw0 + 2*sqrt(A)*alpha
+            b0 = (A * ((A+1) + (A-1)*cosw0 + 2*sqrt(A)*alpha)) / a0
+            b1 = (-2*A * ((A-1) + (A+1)*cosw0)) / a0
+            b2 = (A * ((A+1) + (A-1)*cosw0 - 2*sqrt(A)*alpha)) / a0
+            a1 = (2 * ((A-1) - (A+1)*cosw0)) / a0
+            a2 = ((A+1) - (A-1)*cosw0 - 2*sqrt(A)*alpha) / a0
         }
 
         fun process(x: Double): Double {

@@ -11,13 +11,13 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header -->
+        <!-- ── Header ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingBottom="20dp"
+            android:paddingBottom="16dp"
             android:paddingTop="12dp">
 
             <TextView
@@ -38,7 +38,7 @@
                 android:paddingTop="2dp" />
         </LinearLayout>
 
-        <!-- Status -->
+        <!-- ── Status ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,431 +62,232 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- ═══════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════ -->
         <!-- AMPLIFICAZIONE -->
-        <!-- ═══════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════ -->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AMPLIFICAZIONE"
-            android:textColor="@color/section_label"
-            android:textSize="10sp"
-            android:letterSpacing="0.15"
-            android:paddingBottom="8dp" />
+        <TextView style="@style/SectionLabel" android:text="AMPLIFICAZIONE" />
 
-        <!-- Gain Left -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sinistra"
-            android:textColor="@color/text_label"
-            android:textSize="11sp"
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Sinistra" android:textColor="@color/text_label" android:textSize="11sp"
             android:paddingBottom="4dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingBottom="4dp">
-
-            <SeekBar
-                android:id="@+id/seekGainL"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:progressTint="@color/accent_blue"
-                android:thumbTint="@color/accent_blue" />
-
-            <TextView
-                android:id="@+id/tvGainLValue"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:textColor="@color/accent_blue"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:fontFamily="monospace" />
+        <LinearLayout style="@style/SliderRow">
+            <SeekBar android:id="@+id/seekGainL" style="@style/Slider"
+                android:progressTint="@color/accent_blue" android:thumbTint="@color/accent_blue" />
+            <TextView android:id="@+id/tvGainLValue" style="@style/SliderValue"
+                android:textColor="@color/accent_blue" />
         </LinearLayout>
 
-        <!-- Gain Right -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Destra"
-            android:textColor="@color/text_label"
-            android:textSize="11sp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Destra" android:textColor="@color/text_label" android:textSize="11sp"
+            android:paddingBottom="4dp" android:paddingTop="6dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingBottom="4dp">
-
-            <SeekBar
-                android:id="@+id/seekGainR"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:progressTint="@color/accent_blue_r"
-                android:thumbTint="@color/accent_blue_r" />
-
-            <TextView
-                android:id="@+id/tvGainRValue"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:textColor="@color/accent_blue_r"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:fontFamily="monospace" />
+        <LinearLayout style="@style/SliderRow">
+            <SeekBar android:id="@+id/seekGainR" style="@style/Slider"
+                android:progressTint="@color/accent_blue_r" android:thumbTint="@color/accent_blue_r" />
+            <TextView android:id="@+id/tvGainRValue" style="@style/SliderValue"
+                android:textColor="@color/accent_blue_r" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="0% · 100% · 200% · 300% · 400% · 500%"
-            android:textColor="@color/text_dim"
-            android:textSize="9sp"
-            android:paddingBottom="16dp" />
+            android:textColor="@color/text_dim" android:textSize="9sp" android:paddingBottom="16dp" />
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:background="@color/divider" android:layout_marginBottom="16dp" />
+        <View style="@style/Divider" />
 
-        <!-- ═══════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════ -->
+        <!-- EFFETTI HARDWARE -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <TextView style="@style/SectionLabel" android:text="EFFETTI HARDWARE" />
+
+        <!-- AEC -->
+        <LinearLayout android:id="@+id/rowAec" style="@style/CardRow" android:layout_marginBottom="10dp">
+            <LinearLayout style="@style/CardTextBlock">
+                <TextView style="@style/CardTitle" android:text="Soppressore Eco (AEC)" />
+                <TextView style="@style/CardSubtitle" android:text="Elimina l'eco acustico dalle cuffie" />
+            </LinearLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAec"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:checked="true" />
+        </LinearLayout>
+
+        <!-- AGC -->
+        <LinearLayout android:id="@+id/rowAgc" style="@style/CardRow" android:layout_marginBottom="16dp">
+            <LinearLayout style="@style/CardTextBlock">
+                <TextView style="@style/CardTitle" android:text="Controllo Guadagno Auto (AGC)" />
+                <TextView style="@style/CardSubtitle" android:text="Normalizza il volume del parlato" />
+            </LinearLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAgc"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:checked="true" />
+        </LinearLayout>
+
+        <View style="@style/Divider" />
+
+        <!-- ═══════════════════════════════════════ -->
         <!-- FILTRI -->
-        <!-- ═══════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════ -->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FILTRI"
-            android:textColor="@color/section_label"
-            android:textSize="10sp"
-            android:letterSpacing="0.15"
-            android:paddingBottom="12dp" />
+        <TextView style="@style/SectionLabel" android:text="FILTRI" />
 
         <!-- EQ Vocale -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/chip_bg"
-            android:padding="12dp"
-            android:layout_marginBottom="10dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="EQ Vocale"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Passa-banda 300 Hz – 3.4 kHz"
-                    android:textColor="@color/text_dim"
-                    android:textSize="11sp" />
+        <LinearLayout style="@style/CardRow" android:layout_marginBottom="10dp">
+            <LinearLayout style="@style/CardTextBlock">
+                <TextView style="@style/CardTitle" android:text="EQ Vocale" />
+                <TextView style="@style/CardSubtitle" android:text="Passa-banda 300 Hz – 3.4 kHz" />
             </LinearLayout>
-
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchVoiceEq"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:checked="true" />
         </LinearLayout>
 
         <!-- High-Pass -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/chip_bg"
-            android:padding="12dp"
-            android:layout_marginBottom="10dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Filtro Passa-Alto (HP)"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Taglia frequenze sotto la soglia"
-                        android:textColor="@color/text_dim"
-                        android:textSize="11sp" />
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="10dp">
+            <LinearLayout style="@style/CardRowInner">
+                <LinearLayout style="@style/CardTextBlock">
+                    <TextView style="@style/CardTitle" android:text="Filtro Passa-Alto (HP)" />
+                    <TextView style="@style/CardSubtitle" android:text="Taglia frequenze sotto la soglia" />
                 </LinearLayout>
-
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchHp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <SeekBar
-                    android:id="@+id/seekHp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:progressTint="@color/accent_orange"
-                    android:thumbTint="@color/accent_orange" />
-
-                <TextView
-                    android:id="@+id/tvHpValue"
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/accent_orange"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace" />
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekHp" style="@style/Slider"
+                    android:progressTint="@color/accent_orange" android:thumbTint="@color/accent_orange" />
+                <TextView android:id="@+id/tvHpValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_orange" />
             </LinearLayout>
         </LinearLayout>
 
         <!-- Low-Pass -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/chip_bg"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Filtro Passa-Basso (LP)"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Taglia frequenze sopra la soglia"
-                        android:textColor="@color/text_dim"
-                        android:textSize="11sp" />
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="16dp">
+            <LinearLayout style="@style/CardRowInner">
+                <LinearLayout style="@style/CardTextBlock">
+                    <TextView style="@style/CardTitle" android:text="Filtro Passa-Basso (LP)" />
+                    <TextView style="@style/CardSubtitle" android:text="Taglia frequenze sopra la soglia" />
                 </LinearLayout>
-
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchLp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <SeekBar
-                    android:id="@+id/seekLp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:progressTint="@color/accent_teal"
-                    android:thumbTint="@color/accent_teal" />
-
-                <TextView
-                    android:id="@+id/tvLpValue"
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/accent_teal"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace" />
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekLp" style="@style/Slider"
+                    android:progressTint="@color/accent_teal" android:thumbTint="@color/accent_teal" />
+                <TextView android:id="@+id/tvLpValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_teal" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:background="@color/divider" android:layout_marginBottom="16dp" />
+        <View style="@style/Divider" />
 
-        <!-- ═══════════════════════════════════ -->
-        <!-- GATE E RUMORE -->
-        <!-- ═══════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════ -->
+        <!-- MIGLIORAMENTO VOCALE -->
+        <!-- ═══════════════════════════════════════ -->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="GATE E RUMORE"
-            android:textColor="@color/section_label"
-            android:textSize="10sp"
-            android:letterSpacing="0.15"
-            android:paddingBottom="12dp" />
+        <TextView style="@style/SectionLabel" android:text="MIGLIORAMENTO VOCALE" />
 
-        <!-- dB Gate -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/chip_bg"
-            android:padding="12dp"
-            android:layout_marginBottom="10dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Gate dB"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Silenzia segnali sotto la soglia"
-                        android:textColor="@color/text_dim"
-                        android:textSize="11sp" />
+        <!-- Pre-enfasi consonanti -->
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="10dp">
+            <LinearLayout style="@style/CardRowInner">
+                <LinearLayout style="@style/CardTextBlock">
+                    <TextView style="@style/CardTitle" android:text="Pre-enfasi Consonanti" />
+                    <TextView style="@style/CardSubtitle" android:text="Boost alti 2–4 kHz per intelligibilità" />
                 </LinearLayout>
-
                 <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchGate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:id="@+id/switchPreEmph"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:checked="true" />
+            </LinearLayout>
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekPreEmph" style="@style/Slider"
+                    android:progressTint="@color/accent_yellow" android:thumbTint="@color/accent_yellow" />
+                <TextView android:id="@+id/tvPreEmphValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_yellow" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Compressore dinamico -->
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="16dp">
+            <LinearLayout style="@style/CardRowInner">
+                <LinearLayout style="@style/CardTextBlock">
+                    <TextView style="@style/CardTitle" android:text="Compressore Dinamico" />
+                    <TextView style="@style/CardSubtitle" android:text="Livella il volume del parlato" />
+                </LinearLayout>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchComp"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:checked="true" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Soglia" android:textColor="@color/text_label"
+                android:textSize="11sp" android:paddingTop="8dp" android:paddingBottom="2dp" />
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekCompThresh" style="@style/Slider"
+                    android:progressTint="@color/accent_orange" android:thumbTint="@color/accent_orange" />
+                <TextView android:id="@+id/tvCompThreshValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_orange" />
+            </LinearLayout>
 
-                <SeekBar
-                    android:id="@+id/seekGate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:progressTint="@color/accent_yellow"
-                    android:thumbTint="@color/accent_yellow" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Rapporto" android:textColor="@color/text_label"
+                android:textSize="11sp" android:paddingTop="6dp" android:paddingBottom="2dp" />
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekCompRatio" style="@style/Slider"
+                    android:progressTint="@color/accent_blue" android:thumbTint="@color/accent_blue" />
+                <TextView android:id="@+id/tvCompRatioValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_blue" />
+            </LinearLayout>
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvGateValue"
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/accent_yellow"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace" />
+        <View style="@style/Divider" />
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- GATE E RUMORE -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <TextView style="@style/SectionLabel" android:text="GATE E RUMORE" />
+
+        <!-- dB Gate -->
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="10dp">
+            <LinearLayout style="@style/CardRowInner">
+                <LinearLayout style="@style/CardTextBlock">
+                    <TextView style="@style/CardTitle" android:text="Gate dB" />
+                    <TextView style="@style/CardSubtitle" android:text="Silenzia segnali sotto la soglia" />
+                </LinearLayout>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchGate"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekGate" style="@style/Slider"
+                    android:progressTint="@color/accent_yellow" android:thumbTint="@color/accent_yellow" />
+                <TextView android:id="@+id/tvGateValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_yellow" />
             </LinearLayout>
         </LinearLayout>
 
         <!-- Noise Reduction -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/chip_bg"
-            android:padding="12dp"
-            android:layout_marginBottom="24dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Riduzione Rumore"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:paddingBottom="2dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Gate adattivo su RMS"
-                android:textColor="@color/text_dim"
-                android:textSize="11sp"
-                android:paddingBottom="8dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <SeekBar
-                    android:id="@+id/seekNoise"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:progressTint="@color/accent_orange"
-                    android:thumbTint="@color/accent_orange" />
-
-                <TextView
-                    android:id="@+id/tvNoiseValue"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/accent_orange"
-                    android:textSize="12sp"
-                    android:fontFamily="monospace" />
+        <LinearLayout style="@style/CardCol" android:layout_marginBottom="24dp">
+            <TextView style="@style/CardTitle" android:text="Riduzione Rumore" android:paddingBottom="2dp" />
+            <TextView style="@style/CardSubtitle" android:text="Gate adattivo su RMS" android:paddingBottom="8dp" />
+            <LinearLayout style="@style/SliderRow">
+                <SeekBar android:id="@+id/seekNoise" style="@style/Slider"
+                    android:progressTint="@color/accent_orange" android:thumbTint="@color/accent_orange" />
+                <TextView android:id="@+id/tvNoiseValue" style="@style/SliderValueSm"
+                    android:textColor="@color/accent_orange" />
             </LinearLayout>
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:background="@color/divider" android:layout_marginBottom="20dp" />
+        <View style="@style/Divider" />
 
-        <!-- Start/Stop -->
+        <!-- ── Start/Stop ── -->
         <Button
             android:id="@+id/btnToggle"
             android:layout_width="match_parent"
@@ -495,6 +296,7 @@
             android:textSize="17sp"
             android:textColor="@color/white"
             android:backgroundTint="@color/start_green"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="12dp" />
 
         <TextView
